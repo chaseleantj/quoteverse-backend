@@ -1,0 +1,12 @@
+openai
+pandas
+numpy
+scikit-learn
+pydantic
+python-dotenv
+sqlalchemy
+psycopg2-binary
+alembic
+sqlalchemy-utils
+fastapi
+uvicorn
