@@ -26,7 +26,7 @@ class QuoteDB(Base):
 
 # Pydantic Model
 class MotivationalQuote(BaseModel):
-    author: str
+    author: Optional[str] = None
     quote: str
     date_created: datetime
     embeddings: Optional[List[float]] = None

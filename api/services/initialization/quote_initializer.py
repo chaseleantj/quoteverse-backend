@@ -35,7 +35,10 @@ def init_quotes_and_processor() -> EmbeddingsProcessor:
             
         # Read quotes from CSV
         df = pd.read_csv(os.getenv('DATA_PATH'))
-        
+
+        # Replace falsy values with None
+        df = df.where(pd.notnull(df), None)
+
         # Convert to MotivationalQuote objects
         quotes = [
             MotivationalQuote(

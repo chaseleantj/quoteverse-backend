@@ -5,7 +5,7 @@ from sqlalchemy_utils import database_exists, create_database
 
 def run_migrations():
     database_url = os.getenv("DATABASE_URL")
-    
+
     # Create database if it doesn't exist
     if not database_exists(database_url):
         create_database(database_url)
