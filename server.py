@@ -1,15 +1,32 @@
 from fastapi import FastAPI
+
+from run_migrations import run_migrations
 from api.routers import base, quotes
 from api.services.initialization.quote_initializer import init_quotes_and_processor
 
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+origins = [
+    "http://127.0.0.1:5500",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(base.base_router)
 app.include_router(quotes.quotes_router)
 
 @app.on_event("startup")
 async def startup_event():
-    """Run initialization on startup"""
+    run_migrations()
     processor = init_quotes_and_processor()
     app.state.processor = processor
     print("Processor initialized")
