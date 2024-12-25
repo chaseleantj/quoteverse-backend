@@ -15,6 +15,12 @@ RUN python -m venv /opt/venv && \
 # Stage 2: Runtime stage
 FROM python:3.11-slim
 
+# Install runtime TBB dependencies
+RUN apt-get update && apt-get install -y \
+    libtbb-dev \
+    libtbbmalloc2 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 

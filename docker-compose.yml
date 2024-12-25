@@ -12,6 +12,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app
+      - NUMBA_THREADING_LAYER=tbb
     depends_on:
       - db
 

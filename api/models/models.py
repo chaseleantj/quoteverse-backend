@@ -19,18 +19,18 @@ class QuoteDB(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     author = Column(String)
-    quote = Column(String)
+    text = Column(String)
     date_created = Column(DateTime)
     embeddings = Column(ARRAY(Float))  # Store embeddings as array
-    pca_embeddings = Column(ARRAY(Float))  # Store PCA embeddings as array
+    reduced_embeddings = Column(ARRAY(Float))  # Store reduced embeddings as array
 
 # Pydantic Model
 class MotivationalQuote(BaseModel):
     author: Optional[str] = None
-    quote: str
+    text: str
     date_created: datetime
     embeddings: Optional[List[float]] = None
-    pca_embeddings: Optional[List[float]] = None
+    reduced_embeddings: Optional[List[float]] = None
     
     class Config:
         arbitrary_types_allowed = True
@@ -38,8 +38,8 @@ class MotivationalQuote(BaseModel):
     def to_db_model(self) -> QuoteDB:
         return QuoteDB(
             author=self.author,
-            quote=self.quote,
+            text=self.text,
             date_created=self.date_created,
             embeddings=self.embeddings,
-            pca_embeddings=self.pca_embeddings
+            reduced_embeddings=self.reduced_embeddings
         ) 

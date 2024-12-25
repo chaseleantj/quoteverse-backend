@@ -17,8 +17,8 @@ def get_quotes(count: int = 100):
             "quotes": [
                 {
                     "author": q.author,
-                    "quote": q.quote,
-                    "pca_coords": q.pca_embeddings
+                    "text": q.text,
+                    "coords": q.reduced_embeddings
                 }
                 for q in quotes
             ]
@@ -26,17 +26,17 @@ def get_quotes(count: int = 100):
     finally:
         db.close()
 
-@quotes_router.post("/pca-coordinates/")
-def get_pca_coordinates(
+@quotes_router.post("/get-coords/")
+def get_coords(
     input_strings: List[str],
     processor: EmbeddingsProcessor = Depends(get_processor)
 ):
     try:
         input_embeddings = processor.generate_embeddings(input_strings)
-        pca_coords = processor.transform_embeddings(input_embeddings)
+        coords = processor.transform_embeddings(input_embeddings)
         return {
             "input_strings": input_strings,
-            "pca_coordinates": pca_coords.tolist()
+            "coords": coords.tolist()
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing strings: {str(e)}")
