@@ -23,7 +23,7 @@ class EmbeddingsProcessor:
             model (str): OpenAI embedding model to use
             reduction_method (str): Dimension reduction method ("umap" or "pca")
         """
-        self.client = OpenAI(api_key=api_key if api_key else os.getenv("OPENAI_API_KEY"))
+        self._initialize_client(api_key)
         self.model = model
         self.reduction_method = reduction_method
         self.dim_reducer: Optional[Union[PCA, umap.UMAP]] = None
@@ -32,6 +32,23 @@ class EmbeddingsProcessor:
             'std': None
         }
         
+    def _initialize_client(self, api_key: Optional[str] = None) -> None:
+        """Initialize OpenAI client - separated to handle serialization"""
+        self.client = OpenAI(api_key=api_key if api_key else os.getenv("OPENAI_API_KEY"))
+    
+    def __getstate__(self):
+        """Custom serialization method"""
+        state = self.__dict__.copy()
+        # Don't pickle the OpenAI client
+        del state['client']
+        return state
+    
+    def __setstate__(self, state):
+        """Custom deserialization method"""
+        self.__dict__.update(state)
+        # Reinitialize the OpenAI client
+        self._initialize_client()
+    
     def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """
         Generate embeddings for a list of texts using OpenAI API.
