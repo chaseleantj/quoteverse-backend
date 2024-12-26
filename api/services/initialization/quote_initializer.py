@@ -24,7 +24,9 @@ def load_quotes_from_db() -> List[MotivationalQuote]:
         ]
 
 def load_quotes_from_csv() -> List[MotivationalQuote]:
-    df = pd.read_csv(os.getenv('DATA_PATH'))
+    df = pd.read_csv(os.getenv('DATA_PATH'), nrows=int(os.getenv('MAX_ENTRIES')))
+    # Filter out rows where Quote is null
+    df = df.dropna(subset=['Quote'])
     df = df.where(pd.notnull(df), None)
     
     return [
@@ -56,42 +58,48 @@ def load_processor() -> EmbeddingsProcessor:
 
 def process_quotes(quotes: List[MotivationalQuote]) -> Tuple[List[MotivationalQuote], EmbeddingsProcessor]:
     processor = EmbeddingsProcessor()
-    
     # Generate embeddings and reduced embeddings
     quotes = processor.process_quotes(quotes)
     quotes = processor.add_reduced_embeddings_to_quotes(quotes, n_components=2)
-    
     return quotes, processor
 
 def init_quotes_and_processor() -> EmbeddingsProcessor:
     """Initialize quotes and embeddings processor."""
     try:
-        # Check for existing quotes
-        db = SessionLocal()
-        existing_count = db.query(QuoteDB).count()
-        db.close()
+        
+        if os.getenv('FORCE_OVERWRITE_DB') == 'true':
+            # empty the database
+            db = SessionLocal()
+            db.query(QuoteDB).delete()
+            db.commit()
+            db.close()
+            existing_count = 0
+        else:
+            # Check for existing quotes
+            db = SessionLocal()
+            existing_count = db.query(QuoteDB).count()
+            db.close()
 
-        if existing_count > 0:
-            print(f"Found {existing_count} existing quotes")
-            quotes = load_quotes_from_db()
-            
-            # Try to load existing processor
-            processor_path = get_processor_path()
-            if processor_path.exists():
-                print("Loading existing processor")
-                return load_processor()
-            
-            # If no processor exists, create and fit a new one
-            print("Creating new processor with existing quotes")
-            quotes, processor = process_quotes(quotes)
-            save_processor(processor)
-            return processor
+            if existing_count > 0:
+                print(f"Found {existing_count} existing quotes")
+                quotes = load_quotes_from_db()
+                
+                # Try to load existing processor
+                processor_path = get_processor_path()
+                if processor_path.exists():
+                    print("Loading existing processor")
+                    return load_processor()
+                
+                # If no processor exists, create and fit a new one
+                print("Creating new processor with existing quotes")
+                quotes, processor = process_quotes(quotes)
+                save_processor(processor)
+                return processor
 
         # Initialize from CSV
         print("Initializing quotes from CSV")
         quotes = load_quotes_from_csv()
         quotes, processor = process_quotes(quotes)
-        
         # Save to database and save processor
         save_quotes_to_db(quotes)
         save_processor(processor)

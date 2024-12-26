@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional, Literal, Union
+from typing import List, Optional, Literal, Union, Tuple
 
 import pandas as pd
 import numpy as np
@@ -80,13 +80,20 @@ class EmbeddingsProcessor:
         """
         Fit dimension reduction transformer and compute standardization parameters.
         """
+        # Convert embeddings to numpy array with explicit dtype
+        embeddings_array = np.array(embeddings, dtype=np.float64)
+        
         if self.reduction_method == "pca":
             self.dim_reducer = PCA(n_components=n_components)
         else:  # umap
-            self.dim_reducer = umap.UMAP(n_components=n_components)
+            self.dim_reducer = umap.UMAP(
+                n_neighbors=min(int(np.sqrt(len(embeddings))), len(embeddings) - 1),
+                n_components=n_components,
+                metric='cosine'
+            )
             
         # Fit the reducer
-        reduced_data = self.dim_reducer.fit_transform(embeddings)
+        reduced_data = self.dim_reducer.fit_transform(embeddings_array)
         
         # Calculate standardization parameters
         self.standardization_params['mean'] = np.mean(reduced_data, axis=0)

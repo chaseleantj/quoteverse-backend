@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from typing import List, Optional
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ARRAY, Float
+from pgvector.sqlalchemy import Vector
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
@@ -21,8 +22,8 @@ class QuoteDB(Base):
     author = Column(String)
     text = Column(String)
     date_created = Column(DateTime)
-    embeddings = Column(ARRAY(Float))  # Store embeddings as array
-    reduced_embeddings = Column(ARRAY(Float))  # Store reduced embeddings as array
+    embeddings = Column(Vector(1536))  # Store embeddings as array
+    reduced_embeddings = Column(Vector(2))  # Store reduced embeddings as array
 
 # Pydantic Model
 class MotivationalQuote(BaseModel):
