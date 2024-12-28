@@ -1,5 +1,7 @@
 import os
+import io
 import joblib
+import requests
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
@@ -28,7 +30,15 @@ def load_quotes_from_db() -> List[MotivationalQuote]:
 @time_it
 def load_quotes_from_csv() -> List[MotivationalQuote]:
     print("Initializing quotes from CSV")
-    df = pd.read_csv(os.getenv('DATA_PATH'), nrows=int(os.getenv('MAX_ENTRIES')))
+    data_path = os.getenv('DATA_PATH')
+    
+    # Handle URL or local file
+    if data_path.startswith(('http://', 'https://')):
+        response = requests.get(data_path)
+        df = pd.read_csv(io.StringIO(response.text), nrows=int(os.getenv('MAX_ENTRIES')))
+    else:
+        df = pd.read_csv(data_path, nrows=int(os.getenv('MAX_ENTRIES')))
+    
     # Filter out rows where Quote is null
     df = df.dropna(subset=['Quote'])
     df = df.where(pd.notnull(df), None)

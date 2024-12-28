@@ -1,5 +1,7 @@
 from typing import List
+from sqlalchemy.sql import func
 from fastapi import APIRouter, Depends, HTTPException
+
 from api.models.models import SessionLocal, QuoteDB
 from api.dependencies import get_processor
 from api.services.embeddings.embeddings_processor import EmbeddingsProcessor
@@ -9,10 +11,14 @@ from api.services.similarity.similarity_search import similarity_search
 quotes_router = APIRouter(prefix="/quotes")
 
 @quotes_router.get("/")
-def get_quotes(count: int = 100):
+def get_quotes(count: int = 100, randomize: bool = False):
     db = SessionLocal()
     try:
-        quotes = db.query(QuoteDB).limit(count).all()
+        if randomize:
+            quotes = db.query(QuoteDB).order_by(func.random()).limit(count).all()
+        else:
+            quotes = db.query(QuoteDB).limit(count).all()
+        
         return {
             "status": "success",
             "data": {

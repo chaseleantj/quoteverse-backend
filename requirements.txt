@@ -14,5 +14,6 @@ psycopg2-binary
 pgvector
 alembic
 
+requests
 fastapi
 uvicorn

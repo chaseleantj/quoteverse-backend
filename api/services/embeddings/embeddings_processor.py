@@ -50,7 +50,6 @@ class EmbeddingsProcessor:
         # Reinitialize the OpenAI client
         self._initialize_client()
     
-    @time_it
     def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """
         Generate embeddings for a list of texts using OpenAI API.
@@ -79,9 +78,12 @@ class EmbeddingsProcessor:
     @time_it
     def fit_reducer(self, 
                    embeddings: List[List[float]], 
-                   n_components: int) -> None:
+                   n_components: int) -> np.ndarray:
         """
         Fit dimension reduction transformer and compute standardization parameters.
+        
+        Returns:
+            np.ndarray: The reduced and standardized data
         """
         # Convert embeddings to numpy array with explicit dtype
         embeddings_array = np.array(embeddings, dtype=np.float64)
@@ -95,13 +97,18 @@ class EmbeddingsProcessor:
                 metric='cosine'
             )
             
-        # Fit the reducer
+        # Fit and transform the reducer
         reduced_data = self.dim_reducer.fit_transform(embeddings_array)
         
         # Calculate standardization parameters
         self.standardization_params['mean'] = np.mean(reduced_data, axis=0)
         self.standardization_params['std'] = np.std(reduced_data, axis=0)
-
+        
+        # Standardize the output
+        standardized_data = (reduced_data - self.standardization_params['mean']) / self.standardization_params['std']
+        
+        return standardized_data
+    
     @time_it
     def transform_embeddings(self, 
                            embeddings: List[List[float]]) -> np.ndarray:
@@ -163,12 +170,11 @@ class EmbeddingsProcessor:
         if not embeddings:
             raise ValueError("No embeddings found in quotes")
         
-        # Fit reducer if not already fitted
+        # Get reduced embeddings (either by fitting new reducer or transforming with existing one)
         if self.dim_reducer is None:
-            self.fit_reducer(embeddings, n_components)
-        
-        # Transform embeddings
-        reduced_embeddings = self.transform_embeddings(embeddings)
+            reduced_embeddings = self.fit_reducer(embeddings, n_components)
+        else:
+            reduced_embeddings = self.transform_embeddings(embeddings)
         
         # Update quotes with reduced embeddings
         processed_quotes = []
