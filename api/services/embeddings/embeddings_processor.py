@@ -8,6 +8,7 @@ from sklearn.decomposition import PCA
 from openai import OpenAI
 
 from api.models.models import MotivationalQuote
+from api.services.utils.utils import time_it
 
 
 class EmbeddingsProcessor:
@@ -49,6 +50,7 @@ class EmbeddingsProcessor:
         # Reinitialize the OpenAI client
         self._initialize_client()
     
+    @time_it
     def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """
         Generate embeddings for a list of texts using OpenAI API.
@@ -62,7 +64,7 @@ class EmbeddingsProcessor:
         embeddings = []
         
         # Process texts in batches to avoid API limits
-        batch_size = 100
+        batch_size = int(os.getenv("EMBEDDING_BATCH_SIZE", 100))
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i + batch_size]
             response = self.client.embeddings.create(
@@ -74,6 +76,7 @@ class EmbeddingsProcessor:
             
         return embeddings
     
+    @time_it
     def fit_reducer(self, 
                    embeddings: List[List[float]], 
                    n_components: int) -> None:
@@ -99,6 +102,7 @@ class EmbeddingsProcessor:
         self.standardization_params['mean'] = np.mean(reduced_data, axis=0)
         self.standardization_params['std'] = np.std(reduced_data, axis=0)
 
+    @time_it
     def transform_embeddings(self, 
                            embeddings: List[List[float]]) -> np.ndarray:
         """
@@ -115,7 +119,7 @@ class EmbeddingsProcessor:
         
         return standardized_data
     
-    def process_quotes(self, quotes: List[MotivationalQuote]) -> List[MotivationalQuote]:
+    def add_embeddings_to_quotes(self, quotes: List[MotivationalQuote]) -> List[MotivationalQuote]:
         """
         Generate embeddings for a list of motivational quotes.
         
@@ -159,7 +163,7 @@ class EmbeddingsProcessor:
         if not embeddings:
             raise ValueError("No embeddings found in quotes")
         
-        # Fit PCA if not already fitted
+        # Fit reducer if not already fitted
         if self.dim_reducer is None:
             self.fit_reducer(embeddings, n_components)
         

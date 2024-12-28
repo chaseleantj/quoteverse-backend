@@ -7,9 +7,10 @@ from typing import Tuple, List
 
 from api.services.embeddings.embeddings_processor import EmbeddingsProcessor
 from api.models.models import MotivationalQuote, SessionLocal, QuoteDB
+from api.services.utils.utils import time_it
 
+@time_it
 def load_quotes_from_db() -> List[MotivationalQuote]:
-    # ... existing code ...
     with SessionLocal() as db:
         existing_quotes = db.query(QuoteDB).all()
         return [
@@ -23,7 +24,10 @@ def load_quotes_from_db() -> List[MotivationalQuote]:
             for q in existing_quotes
         ]
 
+
+@time_it
 def load_quotes_from_csv() -> List[MotivationalQuote]:
+    print("Initializing quotes from CSV")
     df = pd.read_csv(os.getenv('DATA_PATH'), nrows=int(os.getenv('MAX_ENTRIES')))
     # Filter out rows where Quote is null
     df = df.dropna(subset=['Quote'])
@@ -38,7 +42,9 @@ def load_quotes_from_csv() -> List[MotivationalQuote]:
         for _, row in df.iterrows()
     ]
 
+@time_it
 def save_quotes_to_db(quotes: List[MotivationalQuote]) -> None:
+    print(f"Saving {len(quotes)} quotes to database")
     with SessionLocal() as db:
         db_quotes = [quote.to_db_model() for quote in quotes]
         db.add_all(db_quotes)
@@ -47,11 +53,14 @@ def save_quotes_to_db(quotes: List[MotivationalQuote]) -> None:
 def get_processor_path() -> Path:
     return Path(os.getenv('MODEL_PATH')) / 'embeddings_processor.joblib'
 
+@time_it
 def save_processor(processor: EmbeddingsProcessor) -> None:
     processor_path = get_processor_path()
+    print(f"Saving processor to {processor_path}")
     processor_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(processor, processor_path)
 
+@time_it
 def load_processor() -> EmbeddingsProcessor:
     processor_path = get_processor_path()
     return joblib.load(processor_path)
@@ -59,7 +68,9 @@ def load_processor() -> EmbeddingsProcessor:
 def process_quotes(quotes: List[MotivationalQuote]) -> Tuple[List[MotivationalQuote], EmbeddingsProcessor]:
     processor = EmbeddingsProcessor()
     # Generate embeddings and reduced embeddings
-    quotes = processor.process_quotes(quotes)
+    print(f"Generating embeddings for {len(quotes)} quotes")
+    quotes = processor.add_embeddings_to_quotes(quotes)
+    print(f"Generating reduced embeddings for {len(quotes)} quotes")
     quotes = processor.add_reduced_embeddings_to_quotes(quotes, n_components=2)
     return quotes, processor
 
@@ -97,7 +108,6 @@ def init_quotes_and_processor() -> EmbeddingsProcessor:
                 return processor
 
         # Initialize from CSV
-        print("Initializing quotes from CSV")
         quotes = load_quotes_from_csv()
         quotes, processor = process_quotes(quotes)
         # Save to database and save processor
