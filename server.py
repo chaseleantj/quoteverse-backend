@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 
 from run_migrations import run_migrations
@@ -11,6 +12,8 @@ app = FastAPI()
 
 origins = [
     "http://127.0.0.1:5500",
+    "https://*.ondigitalocean.app",  # Allow DO app platform domains
+    os.getenv("FRONTEND_URL", ""),   # Allow configurable frontend URL
 ]
 
 app.add_middleware(
