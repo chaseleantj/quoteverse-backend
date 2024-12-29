@@ -1,4 +1,4 @@
 up:
 	docker-compose up --build
-psql:
+db:
 	@docker-compose exec db psql --username=postgres --dbname=quotes_db
