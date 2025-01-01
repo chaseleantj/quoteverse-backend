@@ -19,6 +19,7 @@ class QuoteDB(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     author = Column(String)
+    book = Column(String)
     text = Column(String)
     date_created = Column(DateTime)
     embeddings = Column(Vector(1536))
@@ -27,6 +28,7 @@ class QuoteDB(Base):
 # Pydantic Model
 class MotivationalQuote(BaseModel):
     author: Optional[str] = None
+    book: Optional[str] = None
     text: str
     date_created: datetime
     embeddings: Optional[List[float]] = None
@@ -38,6 +40,7 @@ class MotivationalQuote(BaseModel):
     def to_db_model(self) -> QuoteDB:
         return QuoteDB(
             author=self.author,
+            book=self.book,
             text=self.text,
             date_created=self.date_created,
             embeddings=self.embeddings,

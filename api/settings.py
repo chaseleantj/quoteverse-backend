@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT")
     DATABASE_URL: str = os.getenv("DATABASE_URL")
-    FORCE_OVERWRITE_DB: bool = os.getenv("FORCE_OVERWRITE_DB", False)
+    EMPTY_DB_CONTENTS: bool = os.getenv("EMPTY_DB_CONTENTS", False)
 
     ALLOWED_ORIGINS: Optional[str] = os.getenv("ALLOWED_ORIGINS", None)
 

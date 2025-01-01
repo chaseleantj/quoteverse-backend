@@ -27,6 +27,7 @@ def get_quotes(count: int = 100, randomize: bool = False):
                     {
                         "id": q.id,
                         "author": q.author,
+                        "book": q.book,
                         "text": q.text,
                         "coords": q.reduced_embeddings.tolist()
                     }
@@ -63,6 +64,7 @@ def get_similar_quotes(
                             {
                                 "id": quote.id,
                                 "author": quote.author,
+                                "book": quote.book,
                                 "text": quote.text,
                                 "coords": quote.reduced_embeddings.tolist(),
                                 "distance": distance
@@ -101,6 +103,7 @@ def get_quotes_by_author(
                             {
                                 "id": quote.id,
                                 "author": quote.author,
+                                "book": quote.book,
                                 "text": quote.text,
                                 "coords": quote.reduced_embeddings.tolist(),
                             }

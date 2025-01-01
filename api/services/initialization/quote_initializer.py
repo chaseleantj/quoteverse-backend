@@ -20,6 +20,7 @@ def load_quotes_from_db() -> List[MotivationalQuote]:
         return [
             MotivationalQuote(
                 author=q.author,
+                book=q.book,
                 text=q.text,
                 date_created=q.date_created,
                 embeddings=q.embeddings,
@@ -51,6 +52,7 @@ def load_quotes_from_csv() -> List[MotivationalQuote]:
     return [
         MotivationalQuote(
             author=row['Author'],
+            book=row['Book'],
             text=row['Quote'],
             date_created=datetime.now()
         )
@@ -113,7 +115,7 @@ def process_quotes(quotes: List[MotivationalQuote]) -> Tuple[List[MotivationalQu
 def init_quotes_and_processor() -> EmbeddingsProcessor:
     """Initialize quotes and embeddings processor."""
     try:
-        if settings.FORCE_OVERWRITE_DB:
+        if settings.EMPTY_DB_CONTENTS:
             # empty the database
             with SessionLocal() as db:
                 db.query(QuoteDB).delete()
