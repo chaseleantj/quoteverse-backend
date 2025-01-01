@@ -9,6 +9,7 @@ from openai import OpenAI
 
 from api.models.models import MotivationalQuote
 from api.services.utils.utils import time_it
+from api.settings import settings
 
 
 class EmbeddingsProcessor:
@@ -35,7 +36,7 @@ class EmbeddingsProcessor:
         
     def _initialize_client(self, api_key: Optional[str] = None) -> None:
         """Initialize OpenAI client - separated to handle serialization"""
-        self.client = OpenAI(api_key=api_key if api_key else os.getenv("OPENAI_API_KEY"))
+        self.client = OpenAI(api_key=api_key if api_key else settings.OPENAI_API_KEY)
     
     def __getstate__(self):
         """Custom serialization method"""
@@ -63,12 +64,13 @@ class EmbeddingsProcessor:
         embeddings = []
         
         # Process texts in batches to avoid API limits
-        batch_size = int(os.getenv("EMBEDDING_BATCH_SIZE", 100))
+        batch_size = int(settings.EMBEDDING_BATCH_SIZE)
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i + batch_size]
             response = self.client.embeddings.create(
                 model=self.model,
-                input=batch
+                input=batch,
+                dimensions=settings.EMBEDDING_DIMENSIONS
             )
             batch_embeddings = [item.embedding for item in response.data]
             embeddings.extend(batch_embeddings)

@@ -1,16 +1,15 @@
-import os
-
 from datetime import datetime
 from typing import List, Optional
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ARRAY, Float
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
 
+from api.settings import settings
+
 # SQLAlchemy setup
-DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -22,8 +21,8 @@ class QuoteDB(Base):
     author = Column(String)
     text = Column(String)
     date_created = Column(DateTime)
-    embeddings = Column(Vector(1536))  # Store embeddings as array
-    reduced_embeddings = Column(Vector(2))  # Store reduced embeddings as array
+    embeddings = Column(Vector(1536))
+    reduced_embeddings = Column(Vector(2))
 
 # Pydantic Model
 class MotivationalQuote(BaseModel):
@@ -43,4 +42,4 @@ class MotivationalQuote(BaseModel):
             date_created=self.date_created,
             embeddings=self.embeddings,
             reduced_embeddings=self.reduced_embeddings
-        ) 
+        )

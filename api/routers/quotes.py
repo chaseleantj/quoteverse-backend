@@ -42,33 +42,6 @@ def get_quotes(count: int = 100, randomize: bool = False):
         raise HTTPException(status_code=500, detail=f"Error processing strings: {str(e)}")
     finally:
         db.close()
-
-
-@quotes_router.post("/get-coords/")
-def get_coords(
-    input_strings: List[str],
-    processor: EmbeddingsProcessor = Depends(get_processor)
-):
-    try:
-        input_embeddings = processor.generate_embeddings(input_strings)
-        coords = processor.transform_embeddings(input_embeddings)
-        return {
-            "status": "success",
-            "data": {
-                "coordinates": [
-                    {
-                        "text": text,
-                        "coords": coords.tolist()[i]
-                    }
-                    for i, text in enumerate(input_strings)
-                ]
-            },
-            "metadata": {
-                "count": len(input_strings)
-            }
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing strings: {str(e)}")
     
     
 @quotes_router.post("/get-similar-quotes/")

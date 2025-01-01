@@ -2,10 +2,12 @@ import os
 from alembic import command
 from alembic.config import Config
 from sqlalchemy_utils import database_exists, create_database
+from api.settings import settings
+
 
 def run_migrations():
     try:
-        database_url = os.getenv("DATABASE_URL")
+        database_url = settings.DATABASE_URL
         if not database_url:
             raise ValueError("DATABASE_URL environment variable is not set.")
         
