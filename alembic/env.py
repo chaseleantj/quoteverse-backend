@@ -17,6 +17,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 section = config.config_ini_section
+config.set_section_option(section, "sqlalchemy.url", settings.DATABASE_URL)
 # config.set_section_option(section, "POSTGRES_USER", settings.POSTGRES_USER)
 # config.set_section_option(section, "POSTGRES_PASSWORD", settings.POSTGRES_PASSWORD)
 # config.set_section_option(section, "DB_NAME", settings.DB_NAME)
