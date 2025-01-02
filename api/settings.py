@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     EMBEDDING_BATCH_SIZE: int = os.getenv("EMBEDDING_BATCH_SIZE", 2048)
-    EMBEDDING_DIMENSIONS: int = os.getenv("EMBEDDING_DIMENSIONS", 1536)
+    EMBEDDING_DIMENSIONS: int = os.getenv("EMBEDDING_DIMENSIONS", 512)
 
     DATA_PATH: Optional[str] = os.getenv("DATA_PATH", None)
     PROCESSOR_PATH: Optional[str] = os.getenv("PROCESSOR_PATH", None)

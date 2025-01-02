@@ -86,7 +86,7 @@ def check_quotes_from_db() -> dict:
         }
 
 def save_processor(processor: EmbeddingsProcessor) -> None:
-    processor_path = settings.PROCESSOR_PATH
+    processor_path = Path(settings.PROCESSOR_PATH) if settings.PROCESSOR_PATH else None
     if processor_path:
         print(f"Saving processor to {processor_path}")
         processor_path.parent.mkdir(parents=True, exist_ok=True)

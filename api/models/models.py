@@ -22,7 +22,7 @@ class QuoteDB(Base):
     book = Column(String)
     text = Column(String)
     date_created = Column(DateTime)
-    embeddings = Column(Vector(1536))
+    embeddings = Column(Vector(512))
     reduced_embeddings = Column(Vector(2))
 
 # Pydantic Model

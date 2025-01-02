@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Literal
 from sqlalchemy.sql import func
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -6,7 +6,7 @@ from api.models.models import SessionLocal, QuoteDB
 from api.dependencies import get_processor
 from api.services.embeddings.embeddings_processor import EmbeddingsProcessor
 from api.services.search.similarity_search import similarity_search
-from api.services.search.author_search import author_search
+from api.services.search.text_search import text_search
 
 
 quotes_router = APIRouter(prefix="/quotes")
@@ -85,20 +85,21 @@ def get_similar_quotes(
         raise HTTPException(status_code=500, detail=f"Error processing strings: {str(e)}")
 
 
-@quotes_router.post("/get-quotes-by-author/")
-def get_quotes_by_author(
-    authors: List[str],
+@quotes_router.post("/search-quotes/")
+def search_quotes(
+    search_texts: List[str],
+    search_by: Literal["author", "book"],
     k: int = 5,
     strict: bool = False,
 ):
     try:
-        results = author_search(authors, k, strict)
+        results = text_search(search_texts, search_by, k, strict)
         return {
             "status": "success",
             "data": {
                 "queries": [
                     {
-                        "input_text": author,
+                        "input_text": text,
                         "quotes": [
                             {
                                 "id": quote.id,
@@ -110,12 +111,14 @@ def get_quotes_by_author(
                             for quote in quotes
                         ]
                     }
-                    for author, quotes in zip(authors, results)
+                    for text, quotes in zip(search_texts, results)
                 ]
             },
             "metadata": {
-                "query_count": len(authors),
+                "query_count": len(search_texts),
                 "results_per_query": k,
+                "search_by": search_by,
+                "strict": strict
             }
         }
     except Exception as e:
