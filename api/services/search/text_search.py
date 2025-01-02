@@ -49,7 +49,7 @@ def text_search(
                 # (i.e., exact match on lowercased text without spaces)
                 query = query.where(transform_text_sql(column) == transformed_text)
             else:
-                # Fuzzy matching using the %% operator with explicit cast
+                # Fuzzy matching using the % operator with explicit cast
                 query = (
                     query
                     .where(

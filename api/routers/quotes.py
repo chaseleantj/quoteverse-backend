@@ -29,7 +29,7 @@ def get_quotes(count: int = 100, randomize: bool = False):
                         "author": q.author,
                         "book": q.book,
                         "text": q.text,
-                        "coords": q.reduced_embeddings.tolist()
+                        "coords": q.reduced_embeddings.to_list()
                     }
                     for q in quotes
                 ]
@@ -66,7 +66,7 @@ def get_similar_quotes(
                                 "author": quote.author,
                                 "book": quote.book,
                                 "text": quote.text,
-                                "coords": quote.reduced_embeddings.tolist(),
+                                "coords": quote.reduced_embeddings.to_list(),
                                 "distance": distance
                             }
                             for quote, distance in quotes
@@ -106,7 +106,7 @@ def search_quotes(
                                 "author": quote.author,
                                 "book": quote.book,
                                 "text": quote.text,
-                                "coords": quote.reduced_embeddings.tolist(),
+                                "coords": quote.reduced_embeddings.to_list(),
                             }
                             for quote in quotes
                         ]

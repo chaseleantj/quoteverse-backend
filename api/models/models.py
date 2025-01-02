@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from pgvector.sqlalchemy import Vector
+from pgvector.sqlalchemy import HALFVEC
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
@@ -22,8 +22,8 @@ class QuoteDB(Base):
     book = Column(String)
     text = Column(String)
     date_created = Column(DateTime)
-    embeddings = Column(Vector(512))
-    reduced_embeddings = Column(Vector(2))
+    embeddings = Column(HALFVEC(512))
+    reduced_embeddings = Column(HALFVEC(2))
 
 # Pydantic Model
 class MotivationalQuote(BaseModel):

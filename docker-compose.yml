@@ -17,7 +17,7 @@ services:
       - db
 
   db:
-    image: "ankane/pgvector"
+    image: "pgvector/pgvector:pg17"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     expose:
