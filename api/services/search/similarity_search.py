@@ -1,5 +1,6 @@
 from typing import List, Tuple
 from sqlalchemy import select
+from sqlalchemy.sql import text
 
 from api.models.models import SessionLocal, QuoteDB
 from api.services.embeddings.embeddings_processor import EmbeddingsProcessor
@@ -39,6 +40,18 @@ def similarity_search(
             ).where(
                 distance_calc <= max_distance if max_distance is not None else True
             ).order_by('distance').limit(k)
+            
+            # sql = stmt.compile(
+            #     dialect=db.bind.dialect,
+            #     compile_kwargs={"literal_binds": True}
+            # )
+            # explain_results = db.execute(
+            #     text(f"EXPLAIN ANALYZE {str(sql)}")
+            # ).all()
+            
+            # print("\nVector Search Query Execution Plan:")
+            # for row in explain_results:
+            #     print(row[0])
             
             similar_quotes = db.execute(stmt).all()
             results.append([(quote, float(distance)) for quote, distance in similar_quotes])

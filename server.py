@@ -29,7 +29,7 @@ app.include_router(quotes.quotes_router)
 
 @app.on_event("startup")
 async def startup_event():
-    run_migrations()
+    # run_migrations()
     processor = init_quotes_and_processor()
     app.state.processor = processor
     print("Processor initialized")

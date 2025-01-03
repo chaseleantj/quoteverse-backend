@@ -26,7 +26,6 @@ class Settings(BaseSettings):
     PROCESSOR_PATH: Optional[str] = os.getenv("PROCESSOR_PATH", None)
 
     MAX_ENTRIES: int = os.getenv("MAX_ENTRIES", 5000)
-    LEVENSHTEIN_SEARCH_THRESHOLD: int = os.getenv("LEVENSHTEIN_SEARCH_THRESHOLD", 3)
 
     LOG_TIME_IT: bool = os.getenv("LOG_TIME_IT", False)
     

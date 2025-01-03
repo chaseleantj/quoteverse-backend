@@ -1,5 +1,5 @@
 from typing import List, Literal
-from sqlalchemy import select, func, cast, String
+from sqlalchemy import select, func, cast, text, String
 from sqlalchemy.dialects.postgresql import TEXT as PGText
 from sqlalchemy.orm import Session
 
@@ -35,46 +35,46 @@ def text_search(
         List[List[QuoteDB]]: List of quotes for each search text
     """
     results = []
-    # Preprocess the input strings (lowercase and remove spaces)
-    transformed_texts = [transform_text(text) for text in search_texts]
-
+    # No longer need to transform input texts
     with SessionLocal() as db:
-        for transformed_text in transformed_texts:
-            # Build the base query for QuoteDB
+        for search_text in search_texts:  # Using original search_text directly
             query = select(QuoteDB)
             column = getattr(QuoteDB, search_by)
 
             if strict:
-                # Strict equality on the transformed text
-                # (i.e., exact match on lowercased text without spaces)
-                query = query.where(transform_text_sql(column) == transformed_text)
+                # Direct equality comparison without transformation
+                query = query.where(column == search_text)
             else:
-                # Fuzzy matching using the % operator with explicit cast
+                # Fuzzy matching using original text
                 query = (
                     query
                     .where(
-                        cast(transform_text_sql(column), PGText).op('%')(
-                            cast(transformed_text, PGText)
+                        cast(column, PGText).op('%')(
+                            cast(search_text, PGText)
                         )
                     )
                     .order_by(
                         func.similarity(
-                            cast(transform_text_sql(column), PGText),
-                            cast(transformed_text, PGText)
+                            cast(column, PGText),
+                            cast(search_text, PGText)
                         ).desc()
                     )
                 )
 
-            # Limit the query and fetch results
+            # # Print the EXPLAIN ANALYZE plan
+            # explain_query = text(f"EXPLAIN ANALYZE {query.compile(compile_kwargs={'literal_binds': True})}")
+            # result = db.execute(explain_query)
+            # for row in result:
+            #     print(row[0])
+            
+            # # Limit the query and fetch results
             quotes = db.execute(query.limit(k)).scalars().all()
 
             # (Optional) Fallback to partial contains if no results found
-            if not quotes and len(transformed_text) > 5:
+            if not quotes and len(search_text) > 5:
                 contains_query = (
                     select(QuoteDB)
-                    .where(
-                        transform_text_sql(column).contains(transformed_text)
-                    )
+                    .where(column.contains(search_text))
                     .limit(k)
                 )
                 quotes = db.execute(contains_query).scalars().all()
