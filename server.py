@@ -12,7 +12,6 @@ app = FastAPI()
 
 origins = [
     "http://127.0.0.1:5500",
-    # "https://*.ondigitalocean.app",  # Allow DO app platform domains
     settings.ALLOWED_ORIGINS,   # Allow configurable frontend URL
 ]
 
@@ -29,7 +28,7 @@ app.include_router(quotes.quotes_router)
 
 @app.on_event("startup")
 async def startup_event():
-    # run_migrations()
+    run_migrations()
     processor = init_quotes_and_processor()
     app.state.processor = processor
     print("Processor initialized")
