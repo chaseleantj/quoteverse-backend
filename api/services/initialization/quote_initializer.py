@@ -114,8 +114,13 @@ def process_quotes(quotes: List[MotivationalQuote]) -> Tuple[List[MotivationalQu
 
 def init_quotes_and_processor() -> EmbeddingsProcessor:
     """Initialize quotes and embeddings processor."""
+    
+    if settings.SKIP_LOAD_DATA:
+        print("Skipping data loading and processing")
+        return EmbeddingsProcessor()
+    
     try:
-        if settings.EMPTY_DB_CONTENTS:
+        if settings.OVERWRITE_DB_CONTENTS:
             # empty the database
             with SessionLocal() as db:
                 db.query(QuoteDB).delete()

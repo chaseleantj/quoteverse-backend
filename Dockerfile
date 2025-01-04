@@ -35,7 +35,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Create entrypoint script to run FastAPI server
 RUN echo '#!/bin/sh\n\
-    uvicorn server:app --host 0.0.0.0 --port 8000 --reload' > /entrypoint.sh && \
+    uvicorn server:app --host 0.0.0.0 --port 8000' > /entrypoint.sh && \
     chmod +x /entrypoint.sh
 
 # Run the application
