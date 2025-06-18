@@ -6,6 +6,7 @@ openai
 tbb
 
 python-dotenv
+contextlib
 pydantic
 pydantic-settings
 
