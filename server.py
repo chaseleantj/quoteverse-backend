@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,7 +9,16 @@ from api.services.initialization.quote_initializer import init_quotes_and_proces
 from api.settings import settings
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
+    run_migrations()
+    processor = init_quotes_and_processor()
+    app.state.processor = processor
+    print("Processor initialized")
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://127.0.0.1:5500",
@@ -25,10 +35,3 @@ app.add_middleware(
 
 app.include_router(base.base_router)
 app.include_router(quotes.quotes_router)
-
-@app.on_event("startup")
-async def startup_event():
-    run_migrations()
-    processor = init_quotes_and_processor()
-    app.state.processor = processor
-    print("Processor initialized")
