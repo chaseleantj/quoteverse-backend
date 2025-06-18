@@ -3,10 +3,7 @@
       "server.py": {
         "runtime": "python3.11",
         "memory": 1024,
-        "includeFiles": [
-          "alembic/**",
-          "alembic.ini"
-        ]
+        "includeFiles": "alembic/**"
       }
     }
   }
