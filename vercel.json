@@ -1,9 +1,16 @@
 {
-    "functions": {
-      "server.py": {
-        "runtime": "@vercel/python@3.9.0",
-        "memory": 1024,
-        "includeFiles": "alembic/**"
+    "version": 2,
+    "builds": [
+      {
+        "src": "server.py",
+        "use": "@vercel/python",
+        "config": {
+          "memory": 1024,
+          "includeFiles": "alembic/**"
+        }
       }
-    }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "server.py" }
+    ]
   }
