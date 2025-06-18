@@ -1,7 +1,7 @@
 {
     "functions": {
       "server.py": {
-        "runtime": "python3.11",
+        "runtime": "@vercel/python@3.9.0",
         "memory": 1024,
         "includeFiles": "alembic/**"
       }
